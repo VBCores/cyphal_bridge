@@ -31,7 +31,6 @@ class Reader:
      def add_sub(self, types, ids, n ):
           if len(types) != n or len(types) != n:
                print("Failed! Check size of ids and types")
-               pass 
           else:
                for i in range(n):
                     self.subs.append(self._node.make_subscriber(types[i], ids[i]))
