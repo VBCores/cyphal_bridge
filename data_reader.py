@@ -10,15 +10,14 @@ import uavcan.si.unit.voltage
 
 
 class Reader:
-     REGISTER_FILE = ""
      def __init__(self, register_file_name="reader.db") -> None:
 
-        Reader.REGISTER_FILE = register_file_name 
+        self.REGISTER_FILE = register_file_name 
         node_info = uavcan.node.GetInfo_1.Response(
             software_version=uavcan.node.Version_1(major=1, minor=0),
             name="org.voltbro.reader",
         )
-        self._node = pycyphal.application.make_node(node_info, Reader.REGISTER_FILE)
+        self._node = pycyphal.application.make_node(node_info, self.REGISTER_FILE)
         self._node.heartbeat_publisher.mode = uavcan.node.Mode_1.OPERATIONAL
         self._node.heartbeat_publisher.vendor_specific_status_code = os.getpid() % 100
         
