@@ -29,22 +29,22 @@ class Reader:
      def close(self) -> None:
         self._node.close()
 
-     def add_sub(self, types, ids ):
-          if len(types) != len(ids):
-               raise ValueError("Failed! The size of the types is not equal to the size of the IDs")
-          else:
-               for i in range(len(types)):
-                    self.subs.append(self._node.make_subscriber(types[i], ids[i]))
+     def add_sub(self, subscribers):
+          try:
+               if not subscribers:
+                    raise ValueError("Failed! Empty subscriber list")
+               for sub in subscribers:
+                    self.subs.append(self._node.make_subscriber(sub[0], sub[1]))
+          except:
+               raise ValueError("Failed! Subscribers must be a non-empty list of (type, id) tuples")
 
      def get_data(self):
           return self.__data_from_subscribers
 
      async def read(self, timeout):
-          tasks = []
           if not self.subs:
                raise ConnectionError("There are no subscribers") 
-          for sub in self.subs:
-               tasks.append(asyncio.create_task(sub.receive_for(timeout)))
+          tasks = (asyncio.create_task(sub.receive_for(timeout)) for sub in self.subs)
           messages = await asyncio.gather(*tasks)
           for i, msg in enumerate(messages):
                if msg is not None:
@@ -56,8 +56,9 @@ class Reader:
 async def main():
     reader = Reader()
     print('Created reader')
-    reader.add_sub([uavcan.si.sample.angular_velocity.Scalar_1, uavcan.si.sample.angular_velocity.Scalar_1, 
-                    uavcan.si.sample.angle.Scalar_1], [1111, 1112, 1113])
+    reader.add_sub([(uavcan.si.sample.angular_velocity.Scalar_1, 1111), (uavcan.si.sample.angular_velocity.Scalar_1,  1112),
+                    (uavcan.si.sample.angle.Scalar_1, 1113)])
+    
     print('subscribers added')
     await reader.read(1)
     print('Data readed with timeout 1s')    
