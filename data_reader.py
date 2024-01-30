@@ -59,14 +59,12 @@ async def main():
     reader.add_sub([uavcan.si.sample.angular_velocity.Scalar_1, uavcan.si.sample.angular_velocity.Scalar_1, 
                     uavcan.si.sample.angle.Scalar_1], [1111, 1112, 1113])
     print('subscribers added')
-    while True:
-     await reader.read(1)
-     print('Data readed with timeout 1s')
-     print(reader.get_data())    
-#     data = reader.get_data()
-#     print(data[1111].radian_per_second, data[1112].radian_per_second, data[1113].radian)
-#     reader.close()
-#     print('Closed')
+    await reader.read(1)
+    print('Data readed with timeout 1s')    
+    data = reader.get_data()
+    print(data[1111].radian_per_second, data[1112].radian_per_second, data[1113].radian)
+    reader.close()
+    print('Closed')
 
 
 if __name__ == "__main__":
