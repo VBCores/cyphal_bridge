@@ -34,7 +34,7 @@ class Reader:
           try:
                for sub in subscribers:
                     self.subs.append(self._node.make_subscriber(sub[0], sub[1]))
-          except:
+          except IndexError:
                raise ValueError("Failed! Subscribers must be a non-empty list of (type, id) tuples")
 
      def get_data(self):
