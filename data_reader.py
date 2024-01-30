@@ -24,28 +24,28 @@ class Reader:
         
         self.__data_from_subscribers = {}
         self.subs = []
-        self.tasks = []
         self._node.start()
 
      def close(self) -> None:
         self._node.close()
 
-     def add_sub(self, types, ids, timeout):
+     def add_sub(self, types, ids ):
           if len(types) != len(ids):
                raise ValueError("Failed! The size of the types is not equal to the size of the IDs")
           else:
                for i in range(len(types)):
-                    sub = self._node.make_subscriber(types[i], ids[i]) 
-                    self.subs.append(sub)
-                    self.tasks.append(asyncio.create_task(sub.receive_for(timeout)))
+                    self.subs.append(self._node.make_subscriber(types[i], ids[i]))
 
      def get_data(self):
           return self.__data_from_subscribers
 
-     async def read(self):
+     async def read(self, timeout):
+          tasks = []
           if not self.subs:
                raise ConnectionError("There are no subscribers") 
-          messages = await asyncio.gather(*self.tasks)
+          for sub in self.subs:
+               tasks.append(asyncio.create_task(sub.receive_for(timeout)))
+          messages = await asyncio.gather(*tasks)
           for i, msg in enumerate(messages):
                if msg is not None:
                     self.__data_from_subscribers[self.subs[i].transport_session.specifier.data_specifier.subject_id] = msg[0]
@@ -57,16 +57,16 @@ async def main():
     reader = Reader()
     print('Created reader')
     reader.add_sub([uavcan.si.sample.angular_velocity.Scalar_1, uavcan.si.sample.angular_velocity.Scalar_1, 
-                    uavcan.si.sample.angle.Scalar_1], [1111, 1112, 1113], 1)
+                    uavcan.si.sample.angle.Scalar_1], [1111, 1112, 1113])
     print('subscribers added')
-    
-    await reader.read()
-    print('Data readed with timeout 1s')
-    print(reader.get_data())    
-    data = reader.get_data()
-    print(data[1111].radian_per_second, data[1112].radian_per_second, data[1113].radian)
-    reader.close()
-    print('Closed')
+    while True:
+     await reader.read(1)
+     print('Data readed with timeout 1s')
+     print(reader.get_data())    
+#     data = reader.get_data()
+#     print(data[1111].radian_per_second, data[1112].radian_per_second, data[1113].radian)
+#     reader.close()
+#     print('Closed')
 
 
 if __name__ == "__main__":
