@@ -29,9 +29,9 @@ class Reader:
         self._node.close()
 
      def add_sub(self, subscribers):
-          try:
-               if not subscribers:
+          if not subscribers:
                     raise ValueError("Failed! Empty subscriber list")
+          try:
                for sub in subscribers:
                     self.subs.append(self._node.make_subscriber(sub[0], sub[1]))
           except:
