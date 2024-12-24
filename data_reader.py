@@ -4,8 +4,8 @@ import os
 import pycyphal
 import pycyphal.application
 import uavcan.node
-import uavcan.si.sample.angle
-import uavcan.si.sample.angular_velocity
+import uavcan.si.unit.angle
+import uavcan.si.unit.angular_velocity
 import uavcan.si.unit.voltage
 
 
@@ -55,14 +55,13 @@ class Reader:
 async def main():
     reader = Reader()
     print('Created reader')
-    reader.add_sub([(uavcan.si.sample.angular_velocity.Scalar_1, 1111), (uavcan.si.sample.angular_velocity.Scalar_1,  1112),
-                    (uavcan.si.sample.angle.Scalar_1, 1113)])
+    reader.add_sub([(uavcan.si.unit.angular_velocity.Scalar_1, 2222), (uavcan.si.unit.angle.Scalar_1, 1111)])
     
     print('subscribers added')
     await reader.read(1)
     print('Data readed with timeout 1s')    
     data = reader.get_data()
-    print(data[1111].radian_per_second, data[1112].radian_per_second, data[1113].radian)
+    print(data)
     reader.close()
     print('Closed')
 
